@@ -7,15 +7,13 @@ import { useRouter } from 'next/navigation';
 import { logout } from '../featureSlice/authReducer';
 const Header: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
-  const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
 
   // Function to handle logout
   const handleLogout = () => {
     sessionStorage.removeItem('authToken'); // Or use cookies/localStorage
-    dispatch(logout()); // Clear the auth state in Redux
-    setAuthToken(null); // Update the local state
+    dispatch(logout()); // Clear the auth state in Redux // Update the local state
     router.push('/'); // Redirect to home page or login page
   };
   return (
