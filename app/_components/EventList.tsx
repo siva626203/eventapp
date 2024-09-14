@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { toast } from 'react-toastify';
 
 interface Attendee {
   id: string;
   name: string;
   email: string;
+  rsvp?:boolean;
 }
 
 interface Event {
@@ -25,7 +27,7 @@ const EventList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedAttendees, setSelectedAttendees] = useState<Attendee[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+  const [current,setCurrent]=useState<string|null>()
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -41,15 +43,31 @@ const EventList: React.FC = () => {
     fetchEvents();
   }, [user?.email]);
 
-  const handleViewAttendees = (attendees: Attendee[]) => {
+  const handleViewAttendees = (attendees: Attendee[],e:string) => {
+    setCurrent(e)
     setSelectedAttendees(attendees);
     setIsModalOpen(true);
   };
 
-  const handleNotifyAttendee = (attendee: Attendee) => {
-    // Handle notification logic here (e.g., sending an email or SMS)
-    alert(`Notifying ${attendee.name} (${attendee.email})`);
-  };
+ const handleNotifyAttendee = async (attendee: Attendee) => {
+  try {
+    const response = await axios.post('/api/sendmail', {
+      toAddress: attendee.email,
+      subject: 'Event Notification',
+      body: `Dear ${attendee.name},\n\nYou have been invited to an event.\n\nThank you! \n <a href="https://eventapp-siva.vercel.app/event/verify?eventId=${current}&email=${attendee.email}">`,
+    });
+
+    if (response.status === 200) {
+      toast.success(response.data.message)
+    } else {
+      console.error(response.data.message);
+      alert(`Failed to notify ${attendee.name}`);
+    }
+  } catch (error) {
+    console.error('Error notifying attendee:', error);
+    alert(`Error notifying ${attendee.name}`);
+  }
+};
 
   if (loading) {
     return <p>Loading...</p>;
@@ -85,7 +103,7 @@ const EventList: React.FC = () => {
                 <td className="p-2 border-b">
                   <button
                     className="bg-blue-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleViewAttendees(event.attendees)}
+                    onClick={() => handleViewAttendees(event.attendees,event.id)}
                   >
                     View Attendees
                   </button>
@@ -116,12 +134,19 @@ const EventList: React.FC = () => {
                       <td className="p-2 border-b">{attendee.name}</td>
                       <td className="p-2 border-b">{attendee.email}</td>
                       <td className="p-2 border-b">
-                        <button
+                        {attendee.rsvp?<button
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                          onClick={() => handleNotifyAttendee(attendee)}
+                          disabled
+                        >
+                          RSVP
+                        </button>:<button
                           className="bg-green-500 text-white px-4 py-2 rounded"
                           onClick={() => handleNotifyAttendee(attendee)}
                         >
                           Notify
-                        </button>
+                        </button>}
+                        
                       </td>
                     </tr>
                   ))

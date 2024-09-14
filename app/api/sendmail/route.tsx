@@ -21,8 +21,8 @@ export async function POST(request: Request) {
       text: body,
     };
 
-    await sgMail.send(msg);
-
+    const res=await sgMail.send(msg);
+    console.log(res)
     return NextResponse.json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
