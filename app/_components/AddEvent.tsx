@@ -3,14 +3,21 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-const AddEventPopup = () => {
- const { user } = useSelector((state: RootState) => state.auth);
+
+// Define the prop types
+interface AddEventPopupProps {
+  onEventAdded: () => void;
+  onClose: () => void;
+}
+
+const AddEventPopup: React.FC<AddEventPopupProps> = ({ onEventAdded, onClose }) => {
+  const { user } = useSelector((state: RootState) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventLocation, setEventLocation] = useState('');
-  const [attendees, setAttendees] = useState([{ name: '', email: '', phone: '',rsvp:false }]);
+  const [attendees, setAttendees] = useState([{ name: '', email: '', phone: '', rsvp: false }]);
 
   // Function to handle changing attendee input values
   const handleAttendeeChange = (index: number, field: 'name' | 'email' | 'phone', value: string) => {
@@ -21,7 +28,7 @@ const AddEventPopup = () => {
 
   // Function to add a new attendee
   const handleAddAttendee = () => {
-    setAttendees([...attendees, { name: '', email: '', phone: '',rsvp:false }]);
+    setAttendees([...attendees, { name: '', email: '', phone: '', rsvp: false }]);
   };
 
   const handleAddEvent = async (e: React.FormEvent) => {
@@ -33,11 +40,13 @@ const AddEventPopup = () => {
         date: eventDate,
         location: eventLocation,
         attendees,
-        organizer:user?.email
+        organizer: user?.email,
       });
+      console.log(response);
       toast.success('Event added');
+      onEventAdded(); // Call the onEventAdded prop function
     } catch (error) {
-      alert('Failed to add event.');
+      toast.error('Failed to add event.');
     }
 
     setIsModalOpen(false);
@@ -50,19 +59,14 @@ const AddEventPopup = () => {
   return (
     <div>
       {/* Button to open the modal */}
-      <button
-        className="px-4 py-2 mt-10 ml-10 bg-blue-600 text-white rounded"
-        onClick={() => setIsModalOpen(true)}
-      >
+      <button className="px-4 py-2 mt-10 ml-10 bg-blue-600 text-white rounded" onClick={() => setIsModalOpen(true)}>
         Add Event
       </button>
 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div
-            className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[80vh] overflow-y-auto" // Width set to 50% and scroll enabled
-          >
+          <div className="bg-white p-6 rounded shadow-lg w-1/2 max-h-[80vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">Add New Event</h2>
 
             <form onSubmit={handleAddEvent}>
@@ -154,14 +158,14 @@ const AddEventPopup = () => {
                 <button
                   type="button"
                   className="px-4 py-2 mr-2 bg-gray-300 rounded"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    onClose(); // Call the onClose prop function
+                  }}
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded"
-                >
+                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">
                   Add Event
                 </button>
               </div>

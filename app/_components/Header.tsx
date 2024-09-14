@@ -2,7 +2,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Link from 'next/link';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { logout } from '../featureSlice/authReducer';
 const Header: React.FC = () => {

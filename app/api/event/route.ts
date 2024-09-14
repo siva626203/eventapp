@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import Event from '@/app/models/Event';
 import  connectToDatabase  from '@/app/utils/dbconnect';
+import { NextApiRequest } from 'next/types';
 
 // Connect to MongoDB
 
@@ -62,7 +63,14 @@ export async function PUT(request: Request) {
   await connectToDatabase();
 
   try {
-    const { id, title, description, date, location, organizer, attendees } = await request.json();
+    const data = await request.json();
+    console.log('Request data:', data);
+
+    const { id, title, description, date, location, organizer, attendees } = data;
+
+    if (!id) {
+      return NextResponse.json({ message: 'ID is required' }, { status: 400 });
+    }
 
     const updatedEvent = await Event.findByIdAndUpdate(
       id,
@@ -76,6 +84,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(updatedEvent);
   } catch (error) {
+    console.error('Error updating event:', error);
     return NextResponse.error();
   }
 }
