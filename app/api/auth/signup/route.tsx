@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {connectToDatabase} from '@/app/utils/dbconnect'; // Adjust import paths as needed
+import connectToDatabase from '@/app/utils/dbconnect'; // Adjust import paths as needed
 import User from '@/app/models/User'; // Adjust import paths as needed
 import bcrypt from 'bcrypt';
 

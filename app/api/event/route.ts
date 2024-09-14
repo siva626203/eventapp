@@ -1,7 +1,7 @@
 // app/api/event/route.ts
 import { NextResponse } from 'next/server';
 import Event from '@/app/models/Event';
-import { connectToDatabase } from '@/app/utils/dbconnect';
+import  connectToDatabase  from '@/app/utils/dbconnect';
 
 // Connect to MongoDB
 

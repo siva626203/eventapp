@@ -8,7 +8,7 @@ if (!MONGO_URI) {
 
 let cachedClient: mongoose.Mongoose | null = null;
 
-export const connectToDatabase = async () => {
+ const connectToDatabase = async () => {
   if (cachedClient) {
     return cachedClient;
   }
@@ -25,3 +25,5 @@ export const connectToDatabase = async () => {
     throw new Error('Failed to connect to MongoDB');
   }
 };
+
+export default connectToDatabase;
