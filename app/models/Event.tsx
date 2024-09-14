@@ -1,5 +1,11 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, models, Document } from 'mongoose';
 import User from './User'; // Adjust the path as needed
+
+interface IAttendee {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 interface IEvent extends Document {
   title: string;
@@ -7,7 +13,7 @@ interface IEvent extends Document {
   date: Date;
   location: string;
   organizer: string;
-  attendees: Schema.Types.ObjectId[]; // Array of ObjectId references to User
+  attendees: IAttendee[]; // Array of attendee objects
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,14 +44,25 @@ const eventSchema = new Schema<IEvent>({
     trim: true,
   },
   attendees: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    }
   }],
 }, {
-  timestamps: true,
+  timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
-// Create and export the Event model
-const Event = model<IEvent>('Event', eventSchema);
+// Check if the model is already compiled
+const Event = models.Event || model<IEvent>('Event', eventSchema);
 
 export default Event;

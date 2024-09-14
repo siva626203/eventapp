@@ -11,11 +11,11 @@ export async function GET(request: Request) {
   await connectToDatabase();
 
   const url = new URL(request.url);
-  const eventId = url.searchParams.get('id');
+  const organizer = url.searchParams.get('organizer');
 
-  if (eventId) {
+  if (organizer) {
     try {
-      const event = await Event.findById(eventId).populate('attendees');
+      const event = await Event.find({organizer:organizer});
       
       if (!event) {
         return NextResponse.json({ message: 'Event not found' }, { status: 404 });
