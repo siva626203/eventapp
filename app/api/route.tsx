@@ -1,24 +1,23 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import jwt from "jsonwebtoken"; // Correct import for jsonwebtoken
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Check if the authorization header exists
-  const authHeader = req.headers.authorization;
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
 
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Authorization token missing or invalid' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json({ message: 'Authorization token missing or invalid' }, { status: 401 });
   }
 
-  const token = authHeader.split(' ')[1]; // Get the token after 'Bearer '
+  const token = authHeader.split(' ')[1]; // Extract token from "Bearer [token]"
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string); // Use jwt.verify correctly
-    // Attach user info to request object
-    req.user = decoded as any; // Type it based on your user schema or type
+    // Verify the token using your secret key
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
-    // Continue processing the request based on user data
-    return res.status(200).json({ message: 'Authorized', user: req.user });
+    // Respond with decoded user information if the token is valid
+    return NextResponse.json({ message: 'Authorized', user: decoded });
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    // Respond with an error message if the token is invalid
+    return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
   }
 }
