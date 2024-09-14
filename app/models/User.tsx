@@ -7,6 +7,7 @@ interface IUser extends Document {
   name: string;
   role: string;
   phone?: string;
+  rsvp?:string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -14,8 +15,9 @@ const UserSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  role: { type: String, required: false, default: "Customer" },
+  role: { type: String, required: false, default: "User" },
   phone: { type: String, required: false },
+  rsvp:{type:Boolean,required:false,default:false}
 }, {
   timestamps: true, // Optional: Adds createdAt and updatedAt fields
 });

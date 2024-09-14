@@ -6,7 +6,7 @@ declare module 'next-auth' {
       id: string; // Adding 'id' property to the session user object
       name?: string | null;
       email?: string | null;
-      image?: string | null;
+      role?: string | null;
     };
   }
 }

@@ -1,20 +1,27 @@
-// Update your MongoDB client configuration in your NextAuth or API route
+import mongoose from 'mongoose';
 
-import { MongoClient } from 'mongodb';
+const MONGO_URI = process.env.MONGO_URI as string;
 
-// Create a MongoDB client instance
-const client = new MongoClient(process.env.MONGODB_URI!);
+if (!MONGO_URI) {
+  throw new Error('Please define the MONGO_URI environment variable inside .env.local');
+}
 
-// Create a variable to hold the database connection
-let db: any;
+let cachedClient: mongoose.Mongoose | null = null;
 
-// Function to connect to the database
-const connectToDatabase = async () => {
-  if (!db) {
-    await client.connect();
-    db = client.db('your-database-name'); // Replace with your database name
+export const connectToDatabase = async () => {
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  try {
+    const client = await mongoose.connect(MONGO_URI, {
+      // Current Mongoose versions should not need these options
+      // If you need to set any other options, do so here
+    });
+    cachedClient = client;
+    return client;
+  } catch (error) {
+    console.error('Failed to connect to MongoDB', error);
+    throw new Error('Failed to connect to MongoDB');
   }
 };
-
-// Export the database connection function
-export { connectToDatabase, db };

@@ -1,33 +1,32 @@
 'use client';
+
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { login } from '../featureSlice/authReducer';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
   const router = useRouter();
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      });
 
-      if (result?.error) {
-        setError(result.error);
-      } else if (result?.ok) {
-        // Store user data in sessionStorage
-        sessionStorage.setItem('user', JSON.stringify(result));
-        router.push('/'); // Redirect to home or dashboard after successful login
+    try {
+      const response = await axios.post('/api/auth/signin', { email, password });
+      const { token, user } = response.data;
+
+      if (response.status === 200) {
+        dispatch(login({ token, user }));
+        router.push('/dashboard');
       }
-    } catch (error) {
-      setError('Something went wrong');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during sign-in');
     }
   };
 
